@@ -1219,8 +1219,8 @@ contract MMAI is
         devFeeAddress = payable(0x27F63B82e68c21452247Ba65b87c4f0Fb7508f44);
         aiFeeAddress = payable(0x27F63B82e68c21452247Ba65b87c4f0Fb7508f44);
 
-        minimumFeeTokensToTake = 0; //1e6*(10**decimals());
-        address routerAddress = 0x9Ac64Cc6e4415144C455BD8E4837Fea55603e5c3;
+        minimumFeeTokensToTake = 1e7 * 10**decimals();
+        address routerAddress = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
         pancakeRouter = IPancakeRouter02(payable(routerAddress));
 
         pancakePair = IPancakeFactory(pancakeRouter.factory()).createPair(
@@ -1236,12 +1236,12 @@ contract MMAI is
         _limits[address(this)].isExcluded = true;
         _limits[routerAddress].isExcluded = true;
 
-        globalLimit = 1 * 10 ** 12; // 10 ** 18 = 1 ETH limit
+        globalLimit = 2 * 10 ** 18; // 10 ** 18 = 1 ETH limit
         globalLimitPeriod = 24 hours;
+        
         _approve(msg.sender, routerAddress, ~uint(0));
-        _transfer(msg.sender, 0x4Fb76696aEAaDEd4A93C1E4A25a69e7b6645a122, 1e8*10**decimals());
         _setAutomatedMarketMakerPair(pancakePair, true);
-        bridgeAddress = address(1);
+        bridgeAddress = 0x4c03Cf0301F2ef59CC2687b82f982A2A01C00Ee2;
     }
     function decimals() public pure override returns (uint8) {
         return 12;
@@ -1265,6 +1265,7 @@ contract MMAI is
     }
 
     function setBridgeAddress(address a) external onlyOwner {
+        require(a != address(0), "Can't set 0");
         bridgeAddress = a;
     }
 
@@ -1351,6 +1352,7 @@ contract MMAI is
         external
         onlyOwner
     {
+        require(a != address(0), "Can't set 0");
         marketingFeeAddress = payable(a);
     }
 
@@ -1358,6 +1360,7 @@ contract MMAI is
         external
         onlyOwner
     {
+        require(a != address(0), "Can't set 0");
         devFeeAddress = payable(a);
     }
 
@@ -1365,6 +1368,7 @@ contract MMAI is
         external
         onlyOwner
     {
+        require(a != address(0), "Can't set 0");
         aiFeeAddress = payable(a);
     }
 
@@ -1567,29 +1571,19 @@ contract MMAI is
         return _limits[_address];
     }
 
-    address[] public limitedAddresses;
-
     function removeLimits(address[] calldata addresses) external onlyOwner {
-        for (uint256 i = 0; i < addresses.length; i++) {
+        for (uint256 i; i < addresses.length; i++) {
             address account = addresses[i];
-            for (uint256 j = 0; j < limitedAddresses.length; j++) {
-                if (limitedAddresses[j] == account) {
-                    limitedAddresses[j] = limitedAddresses[limitedAddresses.length - 1];
-                    _limits[account].limitPeriod = 0;
-                    _limits[account].limitETH = 0;
-                    limitedAddresses.pop();
-                    break;
-                }
-            }
+            _limits[account].limitPeriod = 0;
+            _limits[account].limitETH = 0;   
         }
     }
 
     // Set custom limits for an address. Defaults to 0, thus will use the "globalLimitPeriod" and "globalLimitETH" if we don't set them
     function setLimits(address[] calldata addresses, uint256[] calldata limitPeriods, uint256[] calldata limitsETH) external onlyOwner{
         require(addresses.length == limitPeriods.length && limitPeriods.length == limitsETH.length, "Array lengths don't match");
-        require(addresses.length <= 1000, "Array too long");
+        
         for(uint256 i=0; i < addresses.length; i++){
-            limitedAddresses.push(addresses[i]);
             if (limitPeriods[i] == 0 && limitsETH[i] == 0) continue;
             _limits[addresses[i]].limitPeriod = limitPeriods[i];
             _limits[addresses[i]].limitETH = limitsETH[i];
@@ -1597,7 +1591,6 @@ contract MMAI is
     }
 
     function addExcludedFromLimits(address[] calldata addresses) external onlyOwner{
-        require(addresses.length <= 1000, "Array too long");
         for(uint256 i=0; i < addresses.length; i++){
             _limits[addresses[i]].isExcluded = true;
         }
