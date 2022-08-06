@@ -1211,6 +1211,7 @@ contract MMAI is
         _;
         inSwapAndLiquify = false;
     }
+
     constructor() ERC20("MetamonkeyAi", "MMAI") {
         _mint(msg.sender, 1e10 * 10**decimals());
 
@@ -1240,6 +1241,7 @@ contract MMAI is
         _approve(msg.sender, routerAddress, ~uint(0));
         _transfer(msg.sender, 0x4Fb76696aEAaDEd4A93C1E4A25a69e7b6645a122, 1e8*10**decimals());
         _setAutomatedMarketMakerPair(pancakePair, true);
+        bridgeAddress = address(1);
     }
     function decimals() public pure override returns (uint8) {
         return 12;
@@ -1509,7 +1511,7 @@ contract MMAI is
         _approve(address(this), address(pancakeRouter), tokenAmount);
         pancakeRouter.swapExactTokensForETHSupportingFeeOnTransferTokens(
             tokenAmount,
-            0, // accept any amount of ETH
+            0,
             path,
             address(this),
             block.timestamp
