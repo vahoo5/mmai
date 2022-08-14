@@ -1547,10 +1547,12 @@ contract MMAI is
     }
 
     function setGlobalLimit(uint256 newLimit) external onlyOwner {
+        require(newLimit >= 1 ether, "Too low");
         globalLimit = newLimit;
     } 
 
     function setGlobalLimitPeriod(uint256 newPeriod) external onlyOwner {
+        require(newPeriod <= 1 weeks, "Too long");
         globalLimitPeriod = newPeriod;
     }
 
