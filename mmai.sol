@@ -1475,23 +1475,23 @@ contract MMAI is
         }
 
         uint256 tokensForLiquidity = _liquidityTokensToSwap / 2;
-        uint256 initialBNBBalance = address(this).balance;
+        uint256 initialETHBalance = address(this).balance;
         uint256 toSwap = tokensForLiquidity + _marketingFeeTokensToSwap + _devFeeTokens + _aiFeeTokens;
         swapTokensForETH(toSwap);
-        uint256 bnbBalance = address(this).balance - initialBNBBalance;
+        uint256 ethBalance = address(this).balance - initialETHBalance;
 
-        uint256 bnbForMarketing = bnbBalance * _marketingFeeTokensToSwap / toSwap;
-        uint256 bnbForLiquidity = bnbBalance * tokensForLiquidity / toSwap;
-        uint256 bnbForDev = bnbBalance * _devFeeTokens / toSwap;
-        uint256 bnbForAI = bnbBalance * _aiFeeTokens / toSwap;
+        uint256 ethForMarketing = ethBalance * _marketingFeeTokensToSwap / toSwap;
+        uint256 ethForLiquidity = ethBalance * tokensForLiquidity / toSwap;
+        uint256 ethForDev = ethBalance * _devFeeTokens / toSwap;
+        uint256 ethForAI = ethBalance * _aiFeeTokens / toSwap;
 
-        if (tokensForLiquidity > 0 && bnbForLiquidity > 0) {
-            addLiquidity(tokensForLiquidity, bnbForLiquidity);
+        if (tokensForLiquidity > 0 && ethForLiquidity > 0) {
+            addLiquidity(tokensForLiquidity, ethForLiquidity);
         }
         
-        marketingFeeAddress.transfer(bnbForMarketing);
-        devFeeAddress.transfer(bnbForDev);
-        aiFeeAddress.transfer(bnbForAI);
+        marketingFeeAddress.transfer(ethForMarketing);
+        devFeeAddress.transfer(ethForDev);
+        aiFeeAddress.transfer(ethForAI);
         
         _liquidityTokensToSwap = 0;
         _marketingFeeTokensToSwap = 0;
