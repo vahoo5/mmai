@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.15;
+pragma solidity 0.8.16;
 
 interface IPancakeRouter01 {
     function factory() external pure returns (address);
@@ -1154,11 +1154,6 @@ contract MMAI is
 
     mapping(address => bool) public isExcludedFromFee;
 
-    uint8 private constant BUY = 1;
-    uint8 private constant SELL = 2;
-    uint8 private constant TRANSFER = 3;
-    uint8 private buyOrSellSwitch;
-
     // these values are pretty much arbitrary since they get overwritten for every txn, but the placeholders make it easier to work with current contract.
     uint256 private _devFee;
     uint256 private _previousDevFee;
@@ -1199,8 +1194,8 @@ contract MMAI is
 
     uint256 public minimumFeeTokensToTake;
 
-    IPancakeRouter02 public pancakeRouter;
-    address public pancakePair;
+    IPancakeRouter02 immutable public pancakeRouter;
+    address immutable public pancakePair;
 
     bool inSwapAndLiquify;
 
@@ -1236,13 +1231,19 @@ contract MMAI is
         _limits[address(this)].isExcluded = true;
         _limits[routerAddress].isExcluded = true;
 
-        globalLimit = 2 * 10 ** 18; // 10 ** 18 = 1 ETH limit
+        globalLimit = 10 * 10 ** 18; // 10 ** 18 = 1 ETH limit
         globalLimitPeriod = 24 hours;
         
         _approve(msg.sender, routerAddress, ~uint(0));
         _setAutomatedMarketMakerPair(pancakePair, true);
         bridgeAddress = 0x4c03Cf0301F2ef59CC2687b82f982A2A01C00Ee2;
     }
+
+    function migrateBridge(address newAddress) external onlyOwner {
+        require(newAddress != address(0), "cant be zero address");
+        bridgeAddress = newAddress;
+    }
+
     function decimals() public pure override returns (uint8) {
         return 12;
     }
@@ -1277,7 +1278,7 @@ contract MMAI is
     }
 
     function setAutomatedMarketMakerPair(address pair, bool value)
-        public
+        external
         onlyOwner
     {
         require(
@@ -1400,7 +1401,6 @@ contract MMAI is
 
         removeAllFee();
 
-        buyOrSellSwitch = TRANSFER;
 
         // If any account belongs to isExcludedFromFee account then remove the fee
         if (!isExcludedFromFee[from] && !isExcludedFromFee[to]) {
@@ -1411,7 +1411,6 @@ contract MMAI is
                 _liquidityFee = amount * buyLiquidityFee / 1000;
                 _marketingFee = amount * buyMarketingFee / 1000;
                 _aiFee = amount * buyAIFee / 1000;
-                buyOrSellSwitch = BUY;
             }
             // Sell
             else if (automatedMarketMakerPairs[to]) {
@@ -1419,7 +1418,6 @@ contract MMAI is
                 _liquidityFee = amount * sellLiquidityFee / 1000;
                 _marketingFee = amount * sellMarketingFee / 1000;
                 _aiFee = amount * sellAIFee / 1000;
-                buyOrSellSwitch = SELL;
             }else{
                 _devFee = amount * transferDevFee / 1000;
                 _liquidityFee = amount * transferLiquidityFee / 1000;
@@ -1471,7 +1469,6 @@ contract MMAI is
 
     function takeFee() private lockTheSwap {
         uint256 contractBalance = balanceOf(address(this));
-        bool success;
         uint256 totalTokensTaken = _liquidityTokensToSwap + _marketingFeeTokensToSwap + _devFeeTokens + _aiFeeTokens;
         if (totalTokensTaken == 0 || contractBalance < totalTokensTaken) {
             return;
@@ -1492,15 +1489,9 @@ contract MMAI is
             addLiquidity(tokensForLiquidity, bnbForLiquidity);
         }
         
-        (success, ) = address(marketingFeeAddress).call{
-            value: bnbForMarketing
-        }("");
-        (success, ) = address(devFeeAddress).call{
-            value: bnbForDev
-        }("");
-        (success, ) = address(aiFeeAddress).call{
-            value: bnbForAI
-        }("");
+        marketingFeeAddress.transfer(bnbForMarketing);
+        devFeeAddress.transfer(bnbForDev);
+        aiFeeAddress.transfer(bnbForAI);
         
         _liquidityTokensToSwap = 0;
         _marketingFeeTokensToSwap = 0;
