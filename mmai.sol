@@ -161,7 +161,6 @@ interface IPancakeRouter01 {
 }
 
 interface IPancakeRouter02 is IPancakeRouter01 {
-
     function swapExactTokensForTokensSupportingFeeOnTransferTokens(
         uint256 amountIn,
         uint256 amountOutMin,
@@ -342,7 +341,10 @@ abstract contract Context {
 abstract contract Ownable is Context {
     address private _owner;
 
-    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+    event OwnershipTransferred(
+        address indexed previousOwner,
+        address indexed newOwner
+    );
 
     /**
      * @dev Initializes the contract setting the deployer as the initial owner.
@@ -382,7 +384,10 @@ abstract contract Ownable is Context {
      * Can only be called by the current owner.
      */
     function transferOwnership(address newOwner) public virtual onlyOwner {
-        require(newOwner != address(0), "Ownable: new owner is the zero address");
+        require(
+            newOwner != address(0),
+            "Ownable: new owner is the zero address"
+        );
         _transferOwnership(newOwner);
     }
 
@@ -449,10 +454,16 @@ library Address {
      * https://solidity.readthedocs.io/en/v0.5.11/security-considerations.html#use-the-checks-effects-interactions-pattern[checks-effects-interactions pattern].
      */
     function sendValue(address payable recipient, uint256 amount) internal {
-        require(address(this).balance >= amount, "Address: insufficient balance");
+        require(
+            address(this).balance >= amount,
+            "Address: insufficient balance"
+        );
 
         (bool success, ) = recipient.call{value: amount}("");
-        require(success, "Address: unable to send value, recipient may have reverted");
+        require(
+            success,
+            "Address: unable to send value, recipient may have reverted"
+        );
     }
 
     /**
@@ -473,7 +484,10 @@ library Address {
      *
      * _Available since v3.1._
      */
-    function functionCall(address target, bytes memory data) internal returns (bytes memory) {
+    function functionCall(address target, bytes memory data)
+        internal
+        returns (bytes memory)
+    {
         return functionCall(target, data, "Address: low-level call failed");
     }
 
@@ -507,7 +521,13 @@ library Address {
         bytes memory data,
         uint256 value
     ) internal returns (bytes memory) {
-        return functionCallWithValue(target, data, value, "Address: low-level call with value failed");
+        return
+            functionCallWithValue(
+                target,
+                data,
+                value,
+                "Address: low-level call with value failed"
+            );
     }
 
     /**
@@ -522,10 +542,15 @@ library Address {
         uint256 value,
         string memory errorMessage
     ) internal returns (bytes memory) {
-        require(address(this).balance >= value, "Address: insufficient balance for call");
+        require(
+            address(this).balance >= value,
+            "Address: insufficient balance for call"
+        );
         require(isContract(target), "Address: call to non-contract");
 
-        (bool success, bytes memory returndata) = target.call{value: value}(data);
+        (bool success, bytes memory returndata) = target.call{value: value}(
+            data
+        );
         return verifyCallResult(success, returndata, errorMessage);
     }
 
@@ -535,8 +560,17 @@ library Address {
      *
      * _Available since v3.3._
      */
-    function functionStaticCall(address target, bytes memory data) internal view returns (bytes memory) {
-        return functionStaticCall(target, data, "Address: low-level static call failed");
+    function functionStaticCall(address target, bytes memory data)
+        internal
+        view
+        returns (bytes memory)
+    {
+        return
+            functionStaticCall(
+                target,
+                data,
+                "Address: low-level static call failed"
+            );
     }
 
     /**
@@ -562,8 +596,16 @@ library Address {
      *
      * _Available since v3.4._
      */
-    function functionDelegateCall(address target, bytes memory data) internal returns (bytes memory) {
-        return functionDelegateCall(target, data, "Address: low-level delegate call failed");
+    function functionDelegateCall(address target, bytes memory data)
+        internal
+        returns (bytes memory)
+    {
+        return
+            functionDelegateCall(
+                target,
+                data,
+                "Address: low-level delegate call failed"
+            );
     }
 
     /**
@@ -620,7 +662,10 @@ library SafeERC20 {
         address to,
         uint256 value
     ) internal {
-        _callOptionalReturn(token, abi.encodeWithSelector(token.transfer.selector, to, value));
+        _callOptionalReturn(
+            token,
+            abi.encodeWithSelector(token.transfer.selector, to, value)
+        );
     }
 
     function safeTransferFrom(
@@ -629,7 +674,10 @@ library SafeERC20 {
         address to,
         uint256 value
     ) internal {
-        _callOptionalReturn(token, abi.encodeWithSelector(token.transferFrom.selector, from, to, value));
+        _callOptionalReturn(
+            token,
+            abi.encodeWithSelector(token.transferFrom.selector, from, to, value)
+        );
     }
 
     /**
@@ -651,7 +699,10 @@ library SafeERC20 {
             (value == 0) || (token.allowance(address(this), spender) == 0),
             "SafeERC20: approve from non-zero to non-zero allowance"
         );
-        _callOptionalReturn(token, abi.encodeWithSelector(token.approve.selector, spender, value));
+        _callOptionalReturn(
+            token,
+            abi.encodeWithSelector(token.approve.selector, spender, value)
+        );
     }
 
     function safeIncreaseAllowance(
@@ -660,7 +711,14 @@ library SafeERC20 {
         uint256 value
     ) internal {
         uint256 newAllowance = token.allowance(address(this), spender) + value;
-        _callOptionalReturn(token, abi.encodeWithSelector(token.approve.selector, spender, newAllowance));
+        _callOptionalReturn(
+            token,
+            abi.encodeWithSelector(
+                token.approve.selector,
+                spender,
+                newAllowance
+            )
+        );
     }
 
     function safeDecreaseAllowance(
@@ -670,9 +728,19 @@ library SafeERC20 {
     ) internal {
         unchecked {
             uint256 oldAllowance = token.allowance(address(this), spender);
-            require(oldAllowance >= value, "SafeERC20: decreased allowance below zero");
+            require(
+                oldAllowance >= value,
+                "SafeERC20: decreased allowance below zero"
+            );
             uint256 newAllowance = oldAllowance - value;
-            _callOptionalReturn(token, abi.encodeWithSelector(token.approve.selector, spender, newAllowance));
+            _callOptionalReturn(
+                token,
+                abi.encodeWithSelector(
+                    token.approve.selector,
+                    spender,
+                    newAllowance
+                )
+            );
         }
     }
 
@@ -687,10 +755,16 @@ library SafeERC20 {
         // we're implementing it ourselves. We use {Address.functionCall} to perform this call, which verifies that
         // the target address contains contract code and also asserts for success in the low-level call.
 
-        bytes memory returndata = address(token).functionCall(data, "SafeERC20: low-level call failed");
+        bytes memory returndata = address(token).functionCall(
+            data,
+            "SafeERC20: low-level call failed"
+        );
         if (returndata.length > 0) {
             // Return data is optional
-            require(abi.decode(returndata, (bool)), "SafeERC20: ERC20 operation did not succeed");
+            require(
+                abi.decode(returndata, (bool)),
+                "SafeERC20: ERC20 operation did not succeed"
+            );
         }
     }
 }
@@ -708,7 +782,11 @@ interface IERC20 {
      * @dev Emitted when the allowance of a `spender` for an `owner` is set by
      * a call to {approve}. `value` is the new allowance.
      */
-    event Approval(address indexed owner, address indexed spender, uint256 value);
+    event Approval(
+        address indexed owner,
+        address indexed spender,
+        uint256 value
+    );
 
     /**
      * @dev Returns the amount of tokens in existence.
@@ -736,7 +814,10 @@ interface IERC20 {
      *
      * This value changes when {approve} or {transferFrom} are called.
      */
-    function allowance(address owner, address spender) external view returns (uint256);
+    function allowance(address owner, address spender)
+        external
+        view
+        returns (uint256);
 
     /**
      * @dev Sets `amount` as the allowance of `spender` over the caller's tokens.
@@ -853,7 +934,13 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
     /**
      * @dev See {IERC20-balanceOf}.
      */
-    function balanceOf(address account) public view virtual override returns (uint256) {
+    function balanceOf(address account)
+        public
+        view
+        virtual
+        override
+        returns (uint256)
+    {
         return _balances[account];
     }
 
@@ -865,7 +952,12 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      * - `to` cannot be the zero address.
      * - the caller must have a balance of at least `amount`.
      */
-    function transfer(address to, uint256 amount) public virtual override returns (bool) {
+    function transfer(address to, uint256 amount)
+        public
+        virtual
+        override
+        returns (bool)
+    {
         address owner = _msgSender();
         _transfer(owner, to, amount);
         return true;
@@ -874,7 +966,13 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
     /**
      * @dev See {IERC20-allowance}.
      */
-    function allowance(address owner, address spender) public view virtual override returns (uint256) {
+    function allowance(address owner, address spender)
+        public
+        view
+        virtual
+        override
+        returns (uint256)
+    {
         return _allowances[owner][spender];
     }
 
@@ -888,7 +986,12 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      *
      * - `spender` cannot be the zero address.
      */
-    function approve(address spender, uint256 amount) public virtual override returns (bool) {
+    function approve(address spender, uint256 amount)
+        public
+        virtual
+        override
+        returns (bool)
+    {
         address owner = _msgSender();
         _approve(owner, spender, amount);
         return true;
@@ -933,7 +1036,11 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      *
      * - `spender` cannot be the zero address.
      */
-    function increaseAllowance(address spender, uint256 addedValue) public virtual returns (bool) {
+    function increaseAllowance(address spender, uint256 addedValue)
+        public
+        virtual
+        returns (bool)
+    {
         address owner = _msgSender();
         _approve(owner, spender, allowance(owner, spender) + addedValue);
         return true;
@@ -953,10 +1060,17 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      * - `spender` must have allowance for the caller of at least
      * `subtractedValue`.
      */
-    function decreaseAllowance(address spender, uint256 subtractedValue) public virtual returns (bool) {
+    function decreaseAllowance(address spender, uint256 subtractedValue)
+        public
+        virtual
+        returns (bool)
+    {
         address owner = _msgSender();
         uint256 currentAllowance = allowance(owner, spender);
-        require(currentAllowance >= subtractedValue, "ERC20: decreased allowance below zero");
+        require(
+            currentAllowance >= subtractedValue,
+            "ERC20: decreased allowance below zero"
+        );
         unchecked {
             _approve(owner, spender, currentAllowance - subtractedValue);
         }
@@ -989,7 +1103,10 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         _beforeTokenTransfer(from, to, amount);
 
         uint256 fromBalance = _balances[from];
-        require(fromBalance >= amount, "ERC20: transfer amount exceeds balance");
+        require(
+            fromBalance >= amount,
+            "ERC20: transfer amount exceeds balance"
+        );
         unchecked {
             _balances[from] = fromBalance - amount;
         }
@@ -1089,7 +1206,10 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
     ) internal virtual {
         uint256 currentAllowance = allowance(owner, spender);
         if (currentAllowance != type(uint256).max) {
-            require(currentAllowance >= amount, "ERC20: insufficient allowance");
+            require(
+                currentAllowance >= amount,
+                "ERC20: insufficient allowance"
+            );
             unchecked {
                 _approve(owner, spender, currentAllowance - amount);
             }
@@ -1138,13 +1258,17 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
 }
 
 interface uniswapV2Pair {
-    function getReserves() external view returns (uint112 reserve0, uint112 reserve1, uint32 blockTimestampLast);
+    function getReserves()
+        external
+        view
+        returns (
+            uint112 reserve0,
+            uint112 reserve1,
+            uint32 blockTimestampLast
+        );
 }
 
-contract MMAI is
-    ERC20,
-    Ownable
-{
+contract MMAI is ERC20, Ownable {
     address payable public marketingFeeAddress;
     address payable public devFeeAddress;
     address payable public aiFeeAddress;
@@ -1152,7 +1276,11 @@ contract MMAI is
 
     bool public tradingActive;
 
+    uint256 highTaxPeriod = 10;
+    uint256 launchTime;
     mapping(address => bool) public isExcludedFromFee;
+
+    mapping(address => uint256) lastSold;
 
     // these values are pretty much arbitrary since they get overwritten for every txn, but the placeholders make it easier to work with current contract.
     uint256 private _devFee;
@@ -1182,20 +1310,21 @@ contract MMAI is
     uint16 public transferMarketingFee = 10;
     uint16 public transferAIFee = 40;
 
-    // Anti-bot and anti-whale mappings and variables
-
     uint256 private _liquidityTokensToSwap;
     uint256 private _marketingFeeTokensToSwap;
     uint256 private _devFeeTokens;
     uint256 private _aiFeeTokens;
-    // store addresses that a automatic market maker pairs. Any transfer *to* these addresses
-    // could be subject to a maximum transfer amount
+
+    uint256 public extraLPTax = 80;
+
+    uint256 public diamondHandPeriod = 4 weeks;
+
     mapping(address => bool) public automatedMarketMakerPairs;
 
     uint256 public minimumFeeTokensToTake;
 
-    IPancakeRouter02 immutable public pancakeRouter;
-    address immutable public pancakePair;
+    IPancakeRouter02 public immutable pancakeRouter;
+    address public immutable pancakePair;
 
     bool inSwapAndLiquify;
 
@@ -1207,10 +1336,16 @@ contract MMAI is
         inSwapAndLiquify = false;
     }
 
+    function setHighTaxPeriod(uint256 n) external onlyOwner {
+        highTaxPeriod = n;
+    }
+
     constructor() ERC20("MetamonkeyAi", "MMAI") {
         _mint(msg.sender, 1e10 * 10**decimals());
 
-        marketingFeeAddress = payable(0x27F63B82e68c21452247Ba65b87c4f0Fb7508f44);
+        marketingFeeAddress = payable(
+            0x27F63B82e68c21452247Ba65b87c4f0Fb7508f44
+        );
         devFeeAddress = payable(0x27F63B82e68c21452247Ba65b87c4f0Fb7508f44);
         aiFeeAddress = payable(0x27F63B82e68c21452247Ba65b87c4f0Fb7508f44);
 
@@ -1231,10 +1366,10 @@ contract MMAI is
         _limits[address(this)].isExcluded = true;
         _limits[routerAddress].isExcluded = true;
 
-        globalLimit = 10 * 10 ** 18; // 10 ** 18 = 1 ETH limit
+        globalLimit = 10 * 10**18; // 10 ** 18 = 1 ETH limit
         globalLimitPeriod = 24 hours;
-        
-        _approve(msg.sender, routerAddress, ~uint(0));
+
+        _approve(msg.sender, routerAddress, ~uint256(0));
         _setAutomatedMarketMakerPair(pancakePair, true);
         bridgeAddress = 0x4c03Cf0301F2ef59CC2687b82f982A2A01C00Ee2;
     }
@@ -1245,11 +1380,13 @@ contract MMAI is
     }
 
     function decimals() public pure override returns (uint8) {
-        return 12;
+        return 7;
     }
+
     function enableTrading() external onlyOwner {
         require(!tradingActive, "already enabled");
         tradingActive = true;
+        launchTime = block.timestamp;
     }
 
     function totalSupply() public view override returns (uint256) {
@@ -1274,17 +1411,14 @@ contract MMAI is
         external
         onlyOwner
     {
-        minimumFeeTokensToTake = _minimumFeeTokensToTake*(10**decimals());
+        minimumFeeTokensToTake = _minimumFeeTokensToTake * (10**decimals());
     }
 
     function setAutomatedMarketMakerPair(address pair, bool value)
         external
         onlyOwner
     {
-        require(
-            pair != pancakePair,
-            "The pair cannot be removed"
-        );
+        require(pair != pancakePair, "The pair cannot be removed");
 
         _setAutomatedMarketMakerPair(pair, value);
     }
@@ -1312,7 +1446,8 @@ contract MMAI is
         buyMarketingFee = _buyMarketingFee;
         buyAIFee = _buyAIFee;
         require(
-            _buyDevFee + _buyLiquidityFee + _buyMarketingFee + _buyAIFee <= maxFeeLimit,
+            _buyDevFee + _buyLiquidityFee + _buyMarketingFee + _buyAIFee <=
+                maxFeeLimit,
             "Must keep fees below 30%"
         );
     }
@@ -1328,7 +1463,8 @@ contract MMAI is
         sellMarketingFee = _sellMarketingFee;
         sellAIFee = _sellAIFee;
         require(
-            _sellDevFee + _sellLiquidityFee + _sellMarketingFee + _sellAIFee<= maxFeeLimit,
+            _sellDevFee + _sellLiquidityFee + _sellMarketingFee + _sellAIFee <=
+                maxFeeLimit,
             "Must keep fees <= 30%"
         );
     }
@@ -1344,33 +1480,33 @@ contract MMAI is
         transferMarketingFee = _transferMarketingFee;
         transferAIFee = _transferAIfee;
         require(
-            _transferDevFee + _transferLiquidityFee + _transferMarketingFee + _transferAIfee <= maxFeeLimit,
+            _transferDevFee +
+                _transferLiquidityFee +
+                _transferMarketingFee +
+                _transferAIfee <=
+                maxFeeLimit,
             "Must keep fees <= 30%"
         );
     }
 
-    function updateMarketingFeeAddress(address a)
-        external
-        onlyOwner
-    {
+    function updateMarketingFeeAddress(address a) external onlyOwner {
         require(a != address(0), "Can't set 0");
         marketingFeeAddress = payable(a);
     }
 
-    function updateDevAddress(address a)
-        external
-        onlyOwner
-    {
+    function updateDevAddress(address a) external onlyOwner {
         require(a != address(0), "Can't set 0");
         devFeeAddress = payable(a);
     }
 
-    function updateAIAddress(address a)
-        external
-        onlyOwner
-    {
+    function updateAIAddress(address a) external onlyOwner {
         require(a != address(0), "Can't set 0");
         aiFeeAddress = payable(a);
+    }
+
+    function setExtraLPTax(uint256 n) external onlyOwner {
+        require(extraLPTax <= 100, "Too much");
+        extraLPTax = n;
     }
 
     function _transfer(
@@ -1384,11 +1520,14 @@ contract MMAI is
                 "Trading is not active yet."
             );
         }
-
+        if (lastSold[from] == 0) {
+            lastSold[from] = block.timestamp;
+        }
         checkLiquidity();
 
         uint256 contractTokenBalance = balanceOf(address(this));
-        bool overMinimumTokenBalance = contractTokenBalance >= minimumFeeTokensToTake;
+        bool overMinimumTokenBalance = contractTokenBalance >=
+            minimumFeeTokensToTake;
 
         // Take Fee
         if (
@@ -1401,43 +1540,64 @@ contract MMAI is
 
         removeAllFee();
 
-
         // If any account belongs to isExcludedFromFee account then remove the fee
         if (!isExcludedFromFee[from] && !isExcludedFromFee[to]) {
-            
-            // Buy
-            if (automatedMarketMakerPairs[from]) {
-                _devFee = amount * buyDevFee / 1000;
-                _liquidityFee = amount * buyLiquidityFee / 1000;
-                _marketingFee = amount * buyMarketingFee / 1000;
-                _aiFee = amount * buyAIFee / 1000;
+            // High tax period
+            if (launchTime + highTaxPeriod >= block.timestamp) {
+                _devFee = (amount * 25) / 1000;
+                _liquidityFee = (amount * 24) / 1000;
+                _marketingFee = (amount * 25) / 1000;
+                _aiFee = (amount * 25) / 1000;
+            } else {
+                // Buy
+                if (automatedMarketMakerPairs[from]) {
+                    _devFee = (amount * buyDevFee) / 1000;
+                    _liquidityFee = (amount * buyLiquidityFee) / 1000;
+                    _marketingFee = (amount * buyMarketingFee) / 1000;
+                    _aiFee = (amount * buyAIFee) / 1000;
+                }
+                // Sell
+                else if (automatedMarketMakerPairs[to]) {
+                    uint256 plus;
+                    // People who sell within diamondHandPeriod will have to pay extra taxes, which go to LP.
+                    if (lastSold[from] + diamondHandPeriod >= block.timestamp) {
+                        plus += extraLPTax;
+                    }
+                    _devFee = (amount * sellDevFee) / 1000;
+                    _liquidityFee = (amount * (sellLiquidityFee + plus)) / 1000;
+                    _marketingFee = (amount * sellMarketingFee) / 1000;
+                    _aiFee = (amount * sellAIFee) / 1000;
+                    lastSold[from] = block.timestamp; // for the holder extra tax
+                } else {
+                    _devFee = (amount * transferDevFee) / 1000;
+                    _liquidityFee = (amount * transferLiquidityFee) / 1000;
+                    _marketingFee = (amount * transferMarketingFee) / 1000;
+                    _aiFee = (amount * transferAIFee) / 1000;
+                }
             }
-            // Sell
-            else if (automatedMarketMakerPairs[to]) {
-                _devFee = amount * sellDevFee / 1000;
-                _liquidityFee = amount * sellLiquidityFee / 1000;
-                _marketingFee = amount * sellMarketingFee / 1000;
-                _aiFee = amount * sellAIFee / 1000;
-            }else{
-                _devFee = amount * transferDevFee / 1000;
-                _liquidityFee = amount * transferLiquidityFee / 1000;
-                _marketingFee = amount * transferMarketingFee / 1000;
-                _aiFee = amount * transferAIFee / 1000;
-            }
-            if (hasLiquidity && !inSwapAndLiquify && !automatedMarketMakerPairs[from] && !_limits[to].isExcluded){
-                _handleLimited(from, amount - _devFee - _liquidityFee - _marketingFee - _aiFee);
+
+            if (
+                hasLiquidity &&
+                !inSwapAndLiquify &&
+                !automatedMarketMakerPairs[from] &&
+                !_limits[to].isExcluded
+            ) {
+                _handleLimited(
+                    from,
+                    amount - _devFee - _liquidityFee - _marketingFee - _aiFee
+                );
             }
         }
 
-        uint256 _transferAmount = amount - _devFee - _liquidityFee - _marketingFee - _aiFee;
+        uint256 _transferAmount = amount -
+            _devFee -
+            _liquidityFee -
+            _marketingFee -
+            _aiFee;
         super._transfer(from, to, _transferAmount);
         uint256 _feeTotal = _devFee + _liquidityFee + _marketingFee + _aiFee;
         if (_feeTotal > 0) {
-            super._transfer(
-                from,
-                address(this),
-                _feeTotal
-            );
+            super._transfer(from, address(this), _feeTotal);
             _liquidityTokensToSwap += _liquidityFee;
             _marketingFeeTokensToSwap += _marketingFee;
             _devFeeTokens += _devFee;
@@ -1447,7 +1607,12 @@ contract MMAI is
     }
 
     function removeAllFee() private {
-        if (_devFee == 0 && _liquidityFee == 0 && _marketingFee == 0 && _aiFee == 0) return;
+        if (
+            _devFee == 0 &&
+            _liquidityFee == 0 &&
+            _marketingFee == 0 &&
+            _aiFee == 0
+        ) return;
 
         _previousDevFee = _devFee;
         _previousLiquidityFee = _liquidityFee;
@@ -1467,32 +1632,43 @@ contract MMAI is
         _aiFee = _previousAIFee;
     }
 
+    function setDiamondHandPeriod(uint256 n) external onlyOwner {
+        diamondHandPeriod = n;
+    }
+
     function takeFee() private lockTheSwap {
         uint256 contractBalance = balanceOf(address(this));
-        uint256 totalTokensTaken = _liquidityTokensToSwap + _marketingFeeTokensToSwap + _devFeeTokens + _aiFeeTokens;
+        uint256 totalTokensTaken = _liquidityTokensToSwap +
+            _marketingFeeTokensToSwap +
+            _devFeeTokens +
+            _aiFeeTokens;
         if (totalTokensTaken == 0 || contractBalance < totalTokensTaken) {
             return;
         }
 
         uint256 tokensForLiquidity = _liquidityTokensToSwap / 2;
         uint256 initialETHBalance = address(this).balance;
-        uint256 toSwap = tokensForLiquidity + _marketingFeeTokensToSwap + _devFeeTokens + _aiFeeTokens;
+        uint256 toSwap = tokensForLiquidity +
+            _marketingFeeTokensToSwap +
+            _devFeeTokens +
+            _aiFeeTokens;
         swapTokensForETH(toSwap);
         uint256 ethBalance = address(this).balance - initialETHBalance;
 
-        uint256 ethForMarketing = ethBalance * _marketingFeeTokensToSwap / toSwap;
-        uint256 ethForLiquidity = ethBalance * tokensForLiquidity / toSwap;
-        uint256 ethForDev = ethBalance * _devFeeTokens / toSwap;
-        uint256 ethForAI = ethBalance * _aiFeeTokens / toSwap;
+        uint256 ethForMarketing = (ethBalance * _marketingFeeTokensToSwap) /
+            toSwap;
+        uint256 ethForLiquidity = (ethBalance * tokensForLiquidity) / toSwap;
+        uint256 ethForDev = (ethBalance * _devFeeTokens) / toSwap;
+        uint256 ethForAI = (ethBalance * _aiFeeTokens) / toSwap;
 
         if (tokensForLiquidity > 0 && ethForLiquidity > 0) {
             addLiquidity(tokensForLiquidity, ethForLiquidity);
         }
-        
+
         marketingFeeAddress.transfer(ethForMarketing);
         devFeeAddress.transfer(ethForDev);
         aiFeeAddress.transfer(ethForAI);
-        
+
         _liquidityTokensToSwap = 0;
         _marketingFeeTokensToSwap = 0;
         _devFeeTokens = 0;
@@ -1527,14 +1703,13 @@ contract MMAI is
 
     receive() external payable {}
 
-    
     // Limits
     mapping(address => LimitedWallet) private _limits;
 
     uint256 public globalLimit; // limit over timeframe for all
     uint256 public globalLimitPeriod; // timeframe for all
 
-    bool public globalLimitsActive = true;
+    bool public globalLimitsActive;
 
     bool private hasLiquidity;
 
@@ -1549,7 +1724,7 @@ contract MMAI is
     function setGlobalLimit(uint256 newLimit) external onlyOwner {
         require(newLimit >= 1 ether, "Too low");
         globalLimit = newLimit;
-    } 
+    }
 
     function setGlobalLimitPeriod(uint256 newPeriod) external onlyOwner {
         require(newPeriod <= 1 weeks, "Too long");
@@ -1560,7 +1735,11 @@ contract MMAI is
         globalLimitsActive = status;
     }
 
-    function getLimits(address _address) external view returns (LimitedWallet memory){
+    function getLimits(address _address)
+        external
+        view
+        returns (LimitedWallet memory)
+    {
         return _limits[_address];
     }
 
@@ -1568,49 +1747,71 @@ contract MMAI is
         for (uint256 i; i < addresses.length; i++) {
             address account = addresses[i];
             _limits[account].limitPeriod = 0;
-            _limits[account].limitETH = 0;   
+            _limits[account].limitETH = 0;
         }
     }
 
     // Set custom limits for an address. Defaults to 0, thus will use the "globalLimitPeriod" and "globalLimitETH" if we don't set them
-    function setLimits(address[] calldata addresses, uint256[] calldata limitPeriods, uint256[] calldata limitsETH) external onlyOwner{
-        require(addresses.length == limitPeriods.length && limitPeriods.length == limitsETH.length, "Array lengths don't match");
-        
-        for(uint256 i=0; i < addresses.length; i++){
+    function setLimits(
+        address[] calldata addresses,
+        uint256[] calldata limitPeriods,
+        uint256[] calldata limitsETH
+    ) external onlyOwner {
+        require(
+            addresses.length == limitPeriods.length &&
+                limitPeriods.length == limitsETH.length,
+            "Array lengths don't match"
+        );
+
+        for (uint256 i = 0; i < addresses.length; i++) {
             if (limitPeriods[i] == 0 && limitsETH[i] == 0) continue;
             _limits[addresses[i]].limitPeriod = limitPeriods[i];
             _limits[addresses[i]].limitETH = limitsETH[i];
         }
     }
 
-    function addExcludedFromLimits(address[] calldata addresses) external onlyOwner{
-        for(uint256 i=0; i < addresses.length; i++){
+    function addExcludedFromLimits(address[] calldata addresses)
+        external
+        onlyOwner
+    {
+        for (uint256 i = 0; i < addresses.length; i++) {
             _limits[addresses[i]].isExcluded = true;
         }
     }
 
-    function removeExcludedFromLimits(address[] calldata addresses) external onlyOwner{
+    function removeExcludedFromLimits(address[] calldata addresses)
+        external
+        onlyOwner
+    {
         require(addresses.length <= 1000, "Array too long");
-        for(uint256 i=0; i < addresses.length; i++){
+        for (uint256 i = 0; i < addresses.length; i++) {
             _limits[addresses[i]].isExcluded = false;
         }
     }
 
     // Can be used to check how much a wallet sold in their timeframe
-    function getSoldLastPeriod(address _address) public view returns (uint256 sellAmount) {
+    function getSoldLastPeriod(address _address)
+        public
+        view
+        returns (uint256 sellAmount)
+    {
         uint256 numberOfSells = _limits[_address].sellAmounts.length;
 
         if (numberOfSells == 0) {
             return sellAmount;
         }
 
-        uint256 limitPeriod = _limits[_address].limitPeriod == 0 ? globalLimitPeriod : _limits[_address].limitPeriod;
+        uint256 limitPeriod = _limits[_address].limitPeriod == 0
+            ? globalLimitPeriod
+            : _limits[_address].limitPeriod;
         while (true) {
             if (numberOfSells == 0) {
                 break;
             }
             numberOfSells--;
-            uint256 sellTimestamp = _limits[_address].sellTimestamps[numberOfSells];
+            uint256 sellTimestamp = _limits[_address].sellTimestamps[
+                numberOfSells
+            ];
             if (block.timestamp - limitPeriod <= sellTimestamp) {
                 sellAmount += _limits[_address].sellAmounts[numberOfSells];
             } else {
@@ -1624,7 +1825,11 @@ contract MMAI is
         hasLiquidity = r1 > 0 && r2 > 0 ? true : false;
     }
 
-    function getETHValue(uint256 tokenAmount) public view returns (uint256 ethValue) {
+    function getETHValue(uint256 tokenAmount)
+        public
+        view
+        returns (uint256 ethValue)
+    {
         address[] memory path = new address[](2);
         path[0] = address(this);
         path[1] = pancakeRouter.WETH();
@@ -1633,7 +1838,7 @@ contract MMAI is
 
     // Handle private sale wallets
     function _handleLimited(address from, uint256 taxedAmount) private {
-        if (_limits[from].isExcluded || !globalLimitsActive){
+        if (_limits[from].isExcluded || !globalLimitsActive) {
             return;
         }
         uint256 ethValue = getETHValue(taxedAmount);
@@ -1641,16 +1846,31 @@ contract MMAI is
         _limits[from].sellAmounts.push(ethValue);
         uint256 soldAmountLastPeriod = getSoldLastPeriod(from);
 
-        uint256 limit = _limits[from].limitETH == 0 ? globalLimit : _limits[from].limitETH;
-        require(soldAmountLastPeriod <= limit, "Amount over the limit for time period");
+        uint256 limit = _limits[from].limitETH == 0
+            ? globalLimit
+            : _limits[from].limitETH;
+        require(
+            soldAmountLastPeriod <= limit,
+            "Amount over the limit for time period"
+        );
     }
 
-    function withdrawETH() external onlyOwner() {
+    function withdrawETH() external onlyOwner {
         payable(owner()).transfer(address(this).balance);
     }
 
-    function withdrawTokens(IERC20 tokenAddress, address walletAddress) external onlyOwner() {
-        require(walletAddress != address(0), "walletAddress can't be 0 address");
-        SafeERC20.safeTransfer(tokenAddress, walletAddress, tokenAddress.balanceOf(address(this)));
+    function withdrawTokens(IERC20 tokenAddress, address walletAddress)
+        external
+        onlyOwner
+    {
+        require(
+            walletAddress != address(0),
+            "walletAddress can't be 0 address"
+        );
+        SafeERC20.safeTransfer(
+            tokenAddress,
+            walletAddress,
+            tokenAddress.balanceOf(address(this))
+        );
     }
 }
