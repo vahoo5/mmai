@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.16;
 
-interface IPancakeRouter01 {
+interface IUniswapRouter01 {
     function factory() external pure returns (address);
 
     function WETH() external pure returns (address);
@@ -160,7 +160,7 @@ interface IPancakeRouter01 {
         returns (uint256[] memory amounts);
 }
 
-interface IPancakeRouter02 is IPancakeRouter01 {
+interface IUniswapRouter02 is IUniswapRouter01 {
     function swapExactTokensForTokensSupportingFeeOnTransferTokens(
         uint256 amountIn,
         uint256 amountOutMin,
@@ -185,116 +185,7 @@ interface IPancakeRouter02 is IPancakeRouter01 {
     ) external;
 }
 
-interface IPancakePair {
-    event Approval(
-        address indexed owner,
-        address indexed spender,
-        uint256 value
-    );
-    event Transfer(address indexed from, address indexed to, uint256 value);
-
-    function name() external pure returns (string memory);
-
-    function symbol() external pure returns (string memory);
-
-    function decimals() external pure returns (uint8);
-
-    function totalSupply() external view returns (uint256);
-
-    function balanceOf(address owner) external view returns (uint256);
-
-    function allowance(address owner, address spender)
-        external
-        view
-        returns (uint256);
-
-    function approve(address spender, uint256 value) external returns (bool);
-
-    function transfer(address to, uint256 value) external returns (bool);
-
-    function transferFrom(
-        address from,
-        address to,
-        uint256 value
-    ) external returns (bool);
-
-    function DOMAIN_SEPARATOR() external view returns (bytes32);
-
-    function PERMIT_TYPEHASH() external pure returns (bytes32);
-
-    function nonces(address owner) external view returns (uint256);
-
-    function permit(
-        address owner,
-        address spender,
-        uint256 value,
-        uint256 deadline,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
-    ) external;
-
-    event Mint(address indexed sender, uint256 amount0, uint256 amount1);
-    event Burn(
-        address indexed sender,
-        uint256 amount0,
-        uint256 amount1,
-        address indexed to
-    );
-    event Swap(
-        address indexed sender,
-        uint256 amount0In,
-        uint256 amount1In,
-        uint256 amount0Out,
-        uint256 amount1Out,
-        address indexed to
-    );
-    event Sync(uint112 reserve0, uint112 reserve1);
-
-    function MINIMUM_LIQUIDITY() external pure returns (uint256);
-
-    function factory() external view returns (address);
-
-    function token0() external view returns (address);
-
-    function token1() external view returns (address);
-
-    function getReserves()
-        external
-        view
-        returns (
-            uint112 reserve0,
-            uint112 reserve1,
-            uint32 blockTimestampLast
-        );
-
-    function price0CumulativeLast() external view returns (uint256);
-
-    function price1CumulativeLast() external view returns (uint256);
-
-    function kLast() external view returns (uint256);
-
-    function mint(address to) external returns (uint256 liquidity);
-
-    function burn(address to)
-        external
-        returns (uint256 amount0, uint256 amount1);
-
-    function swap(
-        uint256 amount0Out,
-        uint256 amount1Out,
-        address to,
-        bytes calldata data
-    ) external;
-
-    function skim(address to) external;
-
-    function sync() external;
-
-    function initialize(address, address) external;
-}
-
-interface IPancakeFactory {
+interface IFactory {
     event PairCreated(
         address indexed token0,
         address indexed token1,
@@ -1323,8 +1214,8 @@ contract MMAI is ERC20, Ownable {
 
     uint256 public minimumFeeTokensToTake;
 
-    IPancakeRouter02 public immutable pancakeRouter;
-    address public immutable pancakePair;
+    IUniswapRouter02 public immutable uniswapRouter;
+    address public immutable uniswapPair;
 
     bool inSwapAndLiquify;
 
@@ -1351,11 +1242,11 @@ contract MMAI is ERC20, Ownable {
 
         minimumFeeTokensToTake = 1e7 * 10**decimals();
         address routerAddress = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
-        pancakeRouter = IPancakeRouter02(payable(routerAddress));
+        uniswapRouter = IUniswapRouter02(payable(routerAddress));
 
-        pancakePair = IPancakeFactory(pancakeRouter.factory()).createPair(
+        uniswapPair = IFactory(uniswapRouter.factory()).createPair(
             address(this),
-            pancakeRouter.WETH()
+            uniswapRouter.WETH()
         );
 
         isExcludedFromFee[_msgSender()] = true;
@@ -1370,7 +1261,7 @@ contract MMAI is ERC20, Ownable {
         globalLimitPeriod = 24 hours;
 
         _approve(msg.sender, routerAddress, ~uint256(0));
-        _setAutomatedMarketMakerPair(pancakePair, true);
+        _setAutomatedMarketMakerPair(uniswapPair, true);
         bridgeAddress = 0x4c03Cf0301F2ef59CC2687b82f982A2A01C00Ee2;
     }
 
@@ -1418,7 +1309,7 @@ contract MMAI is ERC20, Ownable {
         external
         onlyOwner
     {
-        require(pair != pancakePair, "The pair cannot be removed");
+        require(pair != uniswapPair, "The pair cannot be removed");
 
         _setAutomatedMarketMakerPair(pair, value);
     }
@@ -1678,9 +1569,9 @@ contract MMAI is ERC20, Ownable {
     function swapTokensForETH(uint256 tokenAmount) private {
         address[] memory path = new address[](2);
         path[0] = address(this);
-        path[1] = pancakeRouter.WETH();
-        _approve(address(this), address(pancakeRouter), tokenAmount);
-        pancakeRouter.swapExactTokensForETHSupportingFeeOnTransferTokens(
+        path[1] = uniswapRouter.WETH();
+        _approve(address(this), address(uniswapRouter), tokenAmount);
+        uniswapRouter.swapExactTokensForETHSupportingFeeOnTransferTokens(
             tokenAmount,
             0,
             path,
@@ -1690,8 +1581,8 @@ contract MMAI is ERC20, Ownable {
     }
 
     function addLiquidity(uint256 tokenAmount, uint256 ethAmount) private {
-        _approve(address(this), address(pancakeRouter), tokenAmount);
-        pancakeRouter.addLiquidityETH{value: ethAmount}(
+        _approve(address(this), address(uniswapRouter), tokenAmount);
+        uniswapRouter.addLiquidityETH{value: ethAmount}(
             address(this),
             tokenAmount,
             0, // slippage is unavoidable
@@ -1821,7 +1712,7 @@ contract MMAI is ERC20, Ownable {
     }
 
     function checkLiquidity() internal {
-        (uint256 r1, uint256 r2, ) = uniswapV2Pair(pancakePair).getReserves();
+        (uint256 r1, uint256 r2, ) = uniswapV2Pair(uniswapPair).getReserves();
         hasLiquidity = r1 > 0 && r2 > 0 ? true : false;
     }
 
@@ -1832,8 +1723,8 @@ contract MMAI is ERC20, Ownable {
     {
         address[] memory path = new address[](2);
         path[0] = address(this);
-        path[1] = pancakeRouter.WETH();
-        ethValue = pancakeRouter.getAmountsOut(tokenAmount, path)[1];
+        path[1] = uniswapRouter.WETH();
+        ethValue = uniswapRouter.getAmountsOut(tokenAmount, path)[1];
     }
 
     // Handle private sale wallets
