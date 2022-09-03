@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.16;
+pragma solidity ^0.8.9;
 
 interface IUniswapRouter01 {
     function factory() external pure returns (address);
@@ -1196,10 +1196,10 @@ contract MMAI is ERC20, Ownable {
     uint16 public sellMarketingFee = 10;
     uint16 public sellAIFee = 40;
 
-    uint16 public transferDevFee = 20;
-    uint16 public transferLiquidityFee = 30;
-    uint16 public transferMarketingFee = 10;
-    uint16 public transferAIFee = 40;
+    uint16 public transferDevFee = 0;
+    uint16 public transferLiquidityFee = 0;
+    uint16 public transferMarketingFee = 0;
+    uint16 public transferAIFee = 0;
 
     uint256 private _liquidityTokensToSwap;
     uint256 private _marketingFeeTokensToSwap;
@@ -1235,10 +1235,10 @@ contract MMAI is ERC20, Ownable {
         _mint(msg.sender, 1e10 * 10**decimals());
 
         marketingFeeAddress = payable(
-            0x27F63B82e68c21452247Ba65b87c4f0Fb7508f44
+            0xeCCfBA746348Aa32AFE11A14E8bd36A1b06F1393
         );
-        devFeeAddress = payable(0x27F63B82e68c21452247Ba65b87c4f0Fb7508f44);
-        aiFeeAddress = payable(0x27F63B82e68c21452247Ba65b87c4f0Fb7508f44);
+        devFeeAddress = payable(0x1071A02AF39E0eF4D245b0b21550FCC28e8307eC);
+        aiFeeAddress = payable(0xC1d2a0ab2b29757C9A86A1F0ECC722e356d69Bd5);
 
         minimumFeeTokensToTake = 1e7 * 10**decimals();
         address routerAddress = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
@@ -1252,6 +1252,8 @@ contract MMAI is ERC20, Ownable {
         isExcludedFromFee[_msgSender()] = true;
         isExcludedFromFee[address(this)] = true;
         isExcludedFromFee[marketingFeeAddress] = true;
+        isExcludedFromFee[devFeeAddress] = true;
+        isExcludedFromFee[aiFeeAddress] = true;
 
         _limits[msg.sender].isExcluded = true;
         _limits[address(this)].isExcluded = true;
@@ -1555,10 +1557,20 @@ contract MMAI is ERC20, Ownable {
         if (tokensForLiquidity > 0 && ethForLiquidity > 0) {
             addLiquidity(tokensForLiquidity, ethForLiquidity);
         }
+        bool success;
 
-        marketingFeeAddress.transfer(ethForMarketing);
-        devFeeAddress.transfer(ethForDev);
-        aiFeeAddress.transfer(ethForAI);
+        (success, ) = address(marketingFeeAddress).call{
+            value: ethForMarketing,
+            gas:50000
+        }("");
+        (success, ) = address(devFeeAddress).call{
+            value: ethForDev,
+            gas:50000
+        }("");
+        (success, ) = address(aiFeeAddress).call{
+            value: ethForAI,
+            gas:50000
+        }("");
 
         _liquidityTokensToSwap = 0;
         _marketingFeeTokensToSwap = 0;
